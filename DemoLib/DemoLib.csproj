@@ -54,12 +54,21 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="zxing, Version=0.15.0.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Lib\zxing.dll</HintPath>
+    </Reference>
+    <Reference Include="zxing.presentation, Version=0.15.0.0, Culture=neutral, PublicKeyToken=4e88037ac681fe60, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>Lib\zxing.presentation.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DemoEntity\QueryEntity.cs" />
@@ -72,7 +81,9 @@
     <Compile Include="Queue\QueueManger.cs" />
     <Compile Include="Redis\RedisHelper.cs" />
     <Compile Include="Util\ESConstant.cs" />
+    <Compile Include="Util\ImageHelp.cs" />
     <Compile Include="Util\JsonUtil.cs" />
+    <Compile Include="Util\QRCodeHelp.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="SignalR\" />
@@ -84,6 +95,8 @@
     <Content Include="Lib\Microsoft.Threading.Tasks.dll" />
     <Content Include="Lib\StackExchange.Redis.dll" />
     <Content Include="Lib\System.Runtime.dll" />
+    <Content Include="Lib\zxing.dll" />
+    <Content Include="Lib\zxing.presentation.dll" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
