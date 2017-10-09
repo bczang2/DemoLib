@@ -40,13 +40,13 @@ namespace DemoLib.Redis
             return result;
         }
 
-        static void InternalError(object sender, InternalErrorEventArgs e){}
+        static void InternalError(object sender, InternalErrorEventArgs e) { }
 
-        static void ErrorMessage(object sender, RedisErrorEventArgs e){}
+        static void ErrorMessage(object sender, RedisErrorEventArgs e) { }
 
-        static void ConnectionRestored(object sender, ConnectionFailedEventArgs e){}
+        static void ConnectionRestored(object sender, ConnectionFailedEventArgs e) { }
 
-        static void ConnectionFailed(object sender, ConnectionFailedEventArgs e){}
+        static void ConnectionFailed(object sender, ConnectionFailedEventArgs e) { }
 
         /// <summary>
         /// 获取redis Database
@@ -109,6 +109,54 @@ namespace DemoLib.Redis
             return GetRedisClient(path).StringSet(key, JsonUtil<T>.Serialize(t), timespan);
         }
 
+        /// <summary>
+        /// mset item
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="pair"></param>
+        /// <returns></returns>
+ 
+        public static bool Item_MSet(string path, Dictionary<string, string> pair)
+        {
+            if (pair != null && pair.Any())
+            {
+                int index = 0;
+                KeyValuePair<RedisKey, RedisValue>[] temp = new KeyValuePair<RedisKey, RedisValue>[pair.Count];
+                foreach (var item in pair.Keys)
+                {
+                    temp[index] = new KeyValuePair<RedisKey, RedisValue>(item, pair[item]);
+                    index++;
+                }
+                return GetRedisClient(path).StringSet(temp);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// mset item
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="pair"></param>
+        /// <returns></returns>
+        public static bool Item_SetAsync(string path, Dictionary<string, string> pair)
+        {
+            if (pair != null && pair.Any())
+            {
+                var batch = GetRedisClient(path).CreateBatch();
+                int index = 0;
+                KeyValuePair<RedisKey, RedisValue>[] temp = new KeyValuePair<RedisKey, RedisValue>[pair.Count];
+                foreach (var item in pair.Keys)
+                {
+                    temp[index] = new KeyValuePair<RedisKey, RedisValue>(item, pair[item]);
+                    index++;
+                }
+                var result = batch.StringSetAsync(temp);
+                batch.Execute();
+                return result != null && result.Result;
+            }
+            return false;
+        }
+
         /// <summary> 
         /// get item T 
         /// </summary> 
@@ -136,6 +184,67 @@ namespace DemoLib.Redis
         {
             string result = GetRedisClient(path).StringGet(key).ToString();
             return result;
+        }
+
+        /// <summary>
+        /// mget item string
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="keys"></param>
+        /// <returns></returns>
+ 
+        public static List<string> Item_MGet(string path, string[] keys)
+        {
+            List<string> ret = new List<string>();
+            if (keys != null && keys.Length > 0)
+            {
+                RedisKey[] list = new RedisKey[keys.Length];
+                for (int i = 0; i < keys.Length; i++)
+                {
+                    list[i] = keys[i];
+                }
+                var result = GetRedisClient(path).StringGet(list);
+                if (result != null && result.Length > 0)
+                {
+                    foreach (var item in result)
+                    {
+                        ret.Add(item);
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// getasync item string
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="keys"></param>
+        /// <returns></returns>
+        public static List<string> Item_GetAsync(string path, string[] keys)
+        {
+            List<string> ret = new List<string>();
+            if (keys != null && keys.Length > 0)
+            {
+                var batch = GetRedisClient(path).CreateBatch();
+                RedisKey[] list = new RedisKey[keys.Length];
+                for (int i = 0; i < keys.Length; i++)
+                {
+                    list[i] = keys[i];
+                }
+                var result = batch.StringGetAsync(list);
+                batch.Execute();
+                if (result != null && result.Result != null && result.Result.Length > 0)
+                {
+                    foreach (var item in result.Result)
+                    {
+                        ret.Add(item);
+                    }
+                }
+            }
+
+            return ret;
         }
 
         /// <summary> 
@@ -260,6 +369,58 @@ namespace DemoLib.Redis
         public static bool Hash_Set(string path, string key, string hashKey, string value)
         {
             return GetRedisClient(path).HashSet(key, hashKey, value);
+        }
+
+        /// <summary>
+        /// hash mset
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="pair"></param>
+        /// <returns></returns>
+        public static bool Hash_MSet(string path, string key, Dictionary<string, string> pair)
+        {
+            bool result = false;
+            if (pair != null && pair.Count > 0)
+            {
+                HashEntry[] hashs = new HashEntry[pair.Count];
+                int index = 0;
+                foreach (string hashKey in pair.Keys)
+                {
+                    hashs[index] = new HashEntry(hashKey, pair[hashKey]);
+                    index++;
+                }
+                GetRedisClient(path).HashSet(key, hashs);
+                result = true;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// hash set async
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="pair"></param>
+        /// <returns></returns>
+        public static bool Hash_SetAsync(string path, string key, Dictionary<string, string> pair)
+        {
+            bool result = false;
+            if (pair != null && pair.Count > 0)
+            {
+                var batch = GetRedisClient(path).CreateBatch();
+                HashEntry[] hashs = new HashEntry[pair.Count];
+                int index = 0;
+                foreach (string hashKey in pair.Keys)
+                {
+                    hashs[index] = new HashEntry(hashKey, pair[hashKey]);
+                    index++;
+                }
+                batch.HashSetAsync(key, hashs);
+                batch.Execute();
+                result = true;
+            }
+            return result;
         }
 
         /// <summary> 
