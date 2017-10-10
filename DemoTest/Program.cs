@@ -1,4 +1,5 @@
-﻿using DemoLib.Redis;
+﻿using DemoLib.Geo;
+using DemoLib.Redis;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,6 +11,8 @@ namespace DemoTest
 {
     class Program
     {
+        private const string conn = "127.0.0.1:6379";
+
         static void Main(string[] args)
         {
             Stopwatch sp = new Stopwatch();
@@ -19,7 +22,7 @@ namespace DemoTest
             sp.Start();
             for (int i = 0; i < 10000; i++)
             {
-                RedisHelper.Item_SetString("127.0.0.1:6379", "test_" + i, "value_" + i);
+                RedisHelper.Item_SetString(conn, "test_" + i, "value_" + i);
             }
             sp.Stop();
             Console.WriteLine("time:" + sp.Elapsed.TotalMilliseconds);
@@ -30,7 +33,7 @@ namespace DemoTest
             {
                 temp.Add("test_" + i, "value_" + i);
             }
-            RedisHelper.Item_MSet("127.0.0.1:6379", temp);
+            RedisHelper.Item_MSet(conn, temp);
             sp.Stop();
             Console.WriteLine("batch_time:" + sp.Elapsed.TotalMilliseconds);
             //管道set
@@ -40,7 +43,7 @@ namespace DemoTest
             {
                 temp2.Add("test_" + i, "value_" + i);
             }
-            RedisHelper.Item_SetAsync("127.0.0.1:6379", temp2);
+            RedisHelper.Item_SetAsync(conn, temp2);
             sp.Stop();
             Console.WriteLine("pipeline_time:" + sp.Elapsed.TotalMilliseconds);
             #endregion
@@ -51,19 +54,19 @@ namespace DemoTest
             List<string> list1 = new List<string>();
             for (int i = 0; i < 10000; i++)
             {
-                list1.Add(RedisHelper.Item_GetString("127.0.0.1:6379", "test_" + i));
+                list1.Add(RedisHelper.Item_GetString(conn, "test_" + i));
             }
             sp.Stop();
             Console.WriteLine("Get_Time:" + sp.Elapsed.TotalMilliseconds);
             //批量get
             sp.Restart();
             List<string> list2 = new List<string>();
-            string[] keys1=new string[10000];
+            string[] keys1 = new string[10000];
             for (int i = 0; i < 10000; i++)
             {
                 keys1[i] = "test_" + i;
             }
-            list2.AddRange(RedisHelper.Item_MGet("127.0.0.1:6379", keys1));
+            list2.AddRange(RedisHelper.Item_MGet(conn, keys1));
             sp.Stop();
             Console.WriteLine("batch_Time:" + sp.Elapsed.TotalMilliseconds);
             //管道get
@@ -74,9 +77,30 @@ namespace DemoTest
             {
                 keys2[i] = "test_" + i;
             }
-            list3.AddRange(RedisHelper.Item_MGet("127.0.0.1:6379", keys2));
+            list3.AddRange(RedisHelper.Item_MGet(conn, keys2));
             sp.Stop();
             Console.WriteLine("pipeline_Time:" + sp.Elapsed.TotalMilliseconds);
+            #endregion
+
+            double lng = 121.490546;
+            double lat = 31.262235;
+
+            #region GeoHash
+            string geohash = GeoHash.Encode(lat, lng);
+            var ret = GeoHash.Decode(geohash); 
+            #endregion
+
+            #region RedisGeo
+            RedisHelper.GeoHashAdd(conn, "TestGeo", lat, lng, "1234");
+            RedisHelper.GeoHashAdd(conn, "TestGeo", lat + 1, lng + 1, "1235");
+            RedisHelper.GeoHashAdd(conn, "TestGeo", lat + 23, lng + 45, "1236");
+            RedisHelper.GeoHashAdd(conn, "TestGeo", lat + 8, lng + 37, "1237");
+            RedisHelper.GeoHashAdd(conn, "TestGeo", lat + 15, lng - 23, "1238");
+
+            string geoHash = RedisHelper.GeoHash(conn, "TestGeo", "1234");
+            var distince = RedisHelper.GeoHashDistance(conn, "TestGeo", "1234", "1235");
+            var location = RedisHelper.GeoHashLocation(conn, "TestGeo", "1234");
+            var list = RedisHelper.GeoHashRadius(conn, "TestGeo", lat, lng, 10000, -1, 0, 1); 
             #endregion
 
             Console.ReadKey();

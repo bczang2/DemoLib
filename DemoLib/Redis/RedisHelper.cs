@@ -1,4 +1,5 @@
-﻿using DemoLib.Util;
+﻿using DemoLib.DemoEntity;
+using DemoLib.Util;
 using StackExchange.Redis;
 using System;
 using System.Collections.Concurrent;
@@ -115,7 +116,7 @@ namespace DemoLib.Redis
         /// <param name="path"></param>
         /// <param name="pair"></param>
         /// <returns></returns>
- 
+
         public static bool Item_MSet(string path, Dictionary<string, string> pair)
         {
             if (pair != null && pair.Any())
@@ -192,7 +193,7 @@ namespace DemoLib.Redis
         /// <param name="path"></param>
         /// <param name="keys"></param>
         /// <returns></returns>
- 
+
         public static List<string> Item_MGet(string path, string[] keys)
         {
             List<string> ret = new List<string>();
@@ -1528,6 +1529,113 @@ namespace DemoLib.Redis
             Thread.CurrentThread.Join();
         }
 
+        #endregion
+
+        #region GeoHash
+        /// <summary>
+        /// 新增geohash
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="lat"></param>
+        /// <param name="lng"></param>
+        /// <param name="member"></param>
+        /// <returns></returns>
+        public static bool GeoHashAdd(string path, string key, double lat, double lng, string member)
+        {
+            return GetRedisClient(path).GeoAdd(key, lng, lat, member);
+        }
+
+        /// <summary>
+        /// geohash remove
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="member"></param>
+        /// <returns></returns>
+        public static bool GeoHashRemove(string path, string key, string member)
+        {
+            return GetRedisClient(path).GeoRemove(key, member);
+        }
+
+        /// <summary>
+        /// geohash
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="member"></param>
+        /// <returns></returns>
+        public static string GeoHash(string path, string key, string member)
+        {
+            return GetRedisClient(path).GeoHash(key, member);
+        }
+
+        /// <summary>
+        /// geohash distance
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="memberA"></param>
+        /// <param name="memberB"></param>
+        /// <returns></returns>
+        public static double? GeoHashDistance(string path, string key, string memberA, string memberB)
+        {
+            return GetRedisClient(path).GeoDistance(key, memberA, memberB);
+        }
+
+        /// <summary>
+        /// geohash location
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="member"></param>
+        /// <returns></returns>
+        public static Tuple<double, double> GeoHashLocation(string path, string key, string member)
+        {
+            Tuple<double, double> ret = null;
+            GeoPosition? temp = GetRedisClient(path).GeoPosition(key, member);
+            if (temp.HasValue)
+            {
+                ret = Tuple.Create<double, double>(temp.Value.Latitude, temp.Value.Longitude);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// 搜索附近人信息
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="lat"></param>
+        /// <param name="lng"></param>
+        /// <param name="radius"></param>
+        /// <param name="count"></param>
+        /// <param name="order"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public static List<GeoMemberEntity> GeoHashRadius(string path, string key, double lat, double lng, double radius, int count = -1, int order = 0, int unit = 0)
+        {
+            List<GeoMemberEntity> ret = null;
+            var temp = GetRedisClient(path).GeoRadius(key, lng, lat, radius, (GeoUnit)unit, count, (Order)order);
+            if (temp != null && temp.Length > 0)
+            {
+                ret = new List<GeoMemberEntity>();
+                foreach (var item in temp)
+                {
+                    ret.Add(new GeoMemberEntity()
+                    {
+                        Distance = item.Distance,
+                        Hash = item.Hash,
+                        Lat = item.Position.HasValue ? item.Position.Value.Latitude : 0,
+                        Lng = item.Position.HasValue ? item.Position.Value.Longitude : 0,
+                        Mmeber = item.Member
+                    });
+                }
+            }
+
+            return ret;
+        }
         #endregion
     }
 }
