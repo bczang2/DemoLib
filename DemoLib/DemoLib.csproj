@@ -71,6 +71,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Date\DateUtil.cs" />
     <Compile Include="DemoEntity\GeoMemberEntity.cs" />
     <Compile Include="DemoEntity\QueryEntity.cs" />
     <Compile Include="DemoEntity\Student.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="LocalCache\CacheHelp.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="MD5\MD5Helper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queue\QueueManger.cs" />
     <Compile Include="Redis\RedisHelper.cs" />
