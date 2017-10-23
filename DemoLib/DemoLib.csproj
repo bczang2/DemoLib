@@ -83,6 +83,7 @@
     <Compile Include="DemoEntity\GeoMemberEntity.cs" />
     <Compile Include="DemoEntity\QueryEntity.cs" />
     <Compile Include="DemoEntity\Student.cs" />
+    <Compile Include="DES\DESUtil.cs" />
     <Compile Include="ElasticSearch\ESHelper.cs" />
     <Compile Include="Geo\GeoHash.cs" />
     <Compile Include="LocalCache\CacheHelp.cs">
