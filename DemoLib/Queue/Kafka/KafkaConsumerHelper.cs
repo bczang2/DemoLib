@@ -13,7 +13,7 @@ namespace DemoLib.Queue.Kafka
         private string _topic;
         private bool _isStop;
         private const int _timeout = 1000;
-        private const int _commitIntervalMs = 100;
+        private const int _commitIntervalMs = 10;
 
         /// <summary>
         /// 创建kafka消费者实例
