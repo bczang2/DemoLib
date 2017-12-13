@@ -17,14 +17,14 @@ namespace DemoLib.Util
         /// <param name="fromObj"></param>
         /// <returns></returns>
         public static byte[] Serialize(T entity)
-        {
+        {        
             byte[] result = null;
             if (entity != null)
             {
-                using (MemoryStream ms = new MemoryStream())
+                result = new byte[entity.CalculateSize()];
+                using (MemoryStream ms = new MemoryStream(result))
                 {
                     entity.WriteTo(ms);
-                    result = ms.ToArray();
                 }
             }
 
