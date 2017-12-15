@@ -307,6 +307,30 @@ namespace DemoLib.Redis
             GetRedisClient(path).KeyExpire(key, ts);
         }
 
+        /// <summary>
+        /// StringGetSet
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string StringGetSet(string path, string key, string value)
+        {
+            return GetRedisClient(path).StringGetSet(key, value);
+        }
+
+        /// <summary>
+        /// StringSexnx
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="ts"></param>
+        /// <returns></returns>
+        public static bool StringSexnx(string path, string key, string value, TimeSpan? ts)
+        {
+            return GetRedisClient(path).StringSet(key, value, ts, When.NotExists);
+        }
         #endregion
 
         #region -- Hash --
@@ -1635,6 +1659,33 @@ namespace DemoLib.Redis
             }
 
             return ret;
+        }
+        #endregion
+
+        #region Lock
+        /// <summary>
+        /// 获取锁
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="expire"></param>
+        /// <returns></returns>
+        public static bool Lock(string path, string key, string value, TimeSpan expire)
+        {
+            return GetRedisClient(path).LockTake(key, value, expire);
+        }
+
+        /// <summary>
+        /// 释放锁
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static bool UnLock(string path, string key, string value)
+        {
+            return GetRedisClient(path).LockRelease(key, value);
         }
         #endregion
     }

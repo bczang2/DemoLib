@@ -96,6 +96,8 @@
     <Compile Include="DES\DESUtil.cs" />
     <Compile Include="ElasticSearch\ESHelper.cs" />
     <Compile Include="Geo\GeoHash.cs" />
+    <Compile Include="ID\GenerateIDTool.cs" />
+    <Compile Include="ID\IDManager.cs" />
     <Compile Include="LocalCache\CacheHelp.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -107,9 +109,11 @@
     <Compile Include="Queue\Kafka\KafkaProducerHelper.cs" />
     <Compile Include="Queue\Kafka\KafkaTopic.cs" />
     <Compile Include="Queue\QueueManger.cs" />
+    <Compile Include="Redis\DistributedLock.cs" />
     <Compile Include="Redis\RedisHelper.cs" />
     <Compile Include="SHA\SHAUtil.cs" />
     <Compile Include="Util\ConfigUtils.cs" />
+    <Compile Include="Util\DateTimeUtil.cs" />
     <Compile Include="Util\ESConstant.cs" />
     <Compile Include="Util\ImageHelp.cs" />
     <Compile Include="Util\JsonUtil.cs" />
