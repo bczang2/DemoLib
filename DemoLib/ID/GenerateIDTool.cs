@@ -53,19 +53,12 @@ namespace DemoLib.ID
             }
         }
 
-        /// <summary>
-        /// 设定Timer参数
-        /// </summary>
         internal void GetTimerStart()
         {
             _timer = new Timer();
-            // 循环间隔时间(5秒)
             _timer.Interval = _dueTime;
-            // 允许Timer执行
             _timer.Enabled = true;
-            // 定义回调
             _timer.Elapsed += new ElapsedEventHandler(Action);
-            // 定义多次循环
             _timer.AutoReset = true;
         }
 
