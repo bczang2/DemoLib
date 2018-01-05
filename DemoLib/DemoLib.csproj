@@ -90,6 +90,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Date\DateUtil.cs" />
+    <Compile Include="DelayTask\DelayTaskQueue.cs" />
+    <Compile Include="DelayTask\DelayTaskQueueParam.cs" />
     <Compile Include="DemoEntity\GeoMemberEntity.cs" />
     <Compile Include="DemoEntity\QueryEntity.cs" />
     <Compile Include="DemoEntity\Student.cs" />
