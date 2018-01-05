@@ -18,9 +18,9 @@ namespace DemoLib.Queue.Kafka
         /// <summary>
         /// 创建kafka消费者实例
         /// </summary>
-        /// <param name="broker">broker地址</param>
+        /// <param name="broker">broker</param>
         /// <param name="topic">主题</param>
-        /// <param name="groupID">组名，需要重新消费队列时才传入</param>
+        /// <param name="groupID">组</param>
         public KafkaConsumerHelper(string broker, KafkaTopic topic, string groupID = "default_group")
         {
             _config = new Dictionary<string, object>()
@@ -36,7 +36,7 @@ namespace DemoLib.Queue.Kafka
         /// <summary>
         /// 开始监听消息
         /// </summary>
-        /// <param name="allPartitions">是否多线程消费所有分区，生产者指定了Partition，则为true，否则false</param>
+        /// <param name="allPartitions">异步监听消息</param>
         public void StartAsync(bool allPartitions)
         {
             _isStop = false;
@@ -51,7 +51,7 @@ namespace DemoLib.Queue.Kafka
             {
                 Thread thread = new Thread(() =>
                 {
-                    StartCore(Math.Abs(this._isStop.GetHashCode() % KafkaConstant.KafkaSnsPartitionCount));
+                    StartCore(Math.Abs(this._topic.GetHashCode() % KafkaConstant.KafkaSnsPartitionCount));
                 });
                 thread.Start();
             }
@@ -60,7 +60,7 @@ namespace DemoLib.Queue.Kafka
         /// <summary>
         /// 开始监听消息
         /// </summary>
-        /// <param name="allPartitions">是否多线程消费所有分区，生产者指定了Partition，则为true，否则false</param>
+        /// <param name="allPartitions">同步监听消息</param>
         public void Start(bool allPartitions)
         {
             _isStop = false;
@@ -80,7 +80,7 @@ namespace DemoLib.Queue.Kafka
             }
             else
             {
-                StartCore(Math.Abs(this._isStop.GetHashCode() % KafkaConstant.KafkaSnsPartitionCount));
+                StartCore(Math.Abs(this._topic.GetHashCode() % KafkaConstant.KafkaSnsPartitionCount));
             }
         }
 
@@ -91,14 +91,19 @@ namespace DemoLib.Queue.Kafka
                 using (var consumer = new Consumer(_config))
                 {
                     consumer.Assign(new List<TopicPartition> { new TopicPartition(_topic, partition) });
+                    consumer.Subscribe(_topic);
+                    consumer.OnMessage += (obj, message) =>
+                    {
+                        string value = Encoding.UTF8.GetString(message.Value);
+                        OnReceived.Invoke(value, message.Partition, message.Offset);
+                    };
+                    consumer.OnError += (obj, error) =>
+                    {
+                        OnError.Invoke(error.Reason);
+                    };
                     while (!_isStop)
                     {
-                        Message message = null;
-                        if (consumer.Consume(out message, _timeout))
-                        {
-                            string value = Encoding.UTF8.GetString(message.Value);
-                            OnReceived.Invoke(value);
-                        }
+                        consumer.Poll(_timeout);
                     }
                 }
             }
@@ -115,7 +120,13 @@ namespace DemoLib.Queue.Kafka
 
         /// <summary>
         /// 获取消息事件
+        /// <message,partition,offset>
         /// </summary>
-        public event Action<string> OnReceived;
+        public event Action<string, int, long> OnReceived;
+
+        /// <summary>
+        /// 获取消息失败事件
+        /// </summary>
+        public event Action<string> OnError;
     }
 }

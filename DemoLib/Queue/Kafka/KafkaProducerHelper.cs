@@ -40,7 +40,7 @@ namespace DemoLib.Queue.Kafka
         /// 消费时只能单线程消费
         /// </summary>
         /// <param name="message">消息内容</param>
-        public void Send(string message)
+        public void SendMessage(string message)
         {
             SendCore(message, Math.Abs(this._topic.GetHashCode() % KafkaConstant.KafkaSnsPartitionCount));
         }
@@ -52,7 +52,7 @@ namespace DemoLib.Queue.Kafka
         /// </summary>
         /// <param name="message">消息内容</param>
         /// <param name="partitionCode">分区代码</param>
-        public void Send(string message, long partitionCode)
+        public void SendMessage(string message, long partitionCode)
         {
             SendCore(message, (int)Math.Abs(partitionCode % KafkaConstant.KafkaSnsPartitionCount));
         }
