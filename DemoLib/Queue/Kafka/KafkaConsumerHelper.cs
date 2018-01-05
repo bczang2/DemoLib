@@ -95,12 +95,23 @@ namespace DemoLib.Queue.Kafka
                     consumer.OnMessage += (obj, message) =>
                     {
                         string value = Encoding.UTF8.GetString(message.Value);
-                        OnReceived.Invoke(value, message.Partition, message.Offset);
+                        if (OnReceived != null)
+                        {
+                            OnReceived.Invoke(value, message.Partition, message.Offset);
+                        }
+                        else
+                        {
+                            throw new Exception("OnReceived event is null");
+                        }
                     };
                     consumer.OnError += (obj, error) =>
                     {
-                        OnError.Invoke(error.Reason);
+                        if (OnError != null)
+                        {
+                            OnError.Invoke(error.Reason);
+                        }
                     };
+
                     while (!_isStop)
                     {
                         consumer.Poll(_timeout);
